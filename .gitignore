@@ -32,3 +32,13 @@ logs.txt
 
 # Node / JS
 node_modules/
+
+# Local Manual Execution Commands (git-ignored)
+manual-commands.sh
+manual-commands.md
+manual-test-commands.sh
+commands.local.sh
+screenshot.png
+*.png
+
+
