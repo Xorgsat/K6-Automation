@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>QuickPizza Performance Test Report - {{ test_name }}</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --primary: #2563eb;
+      --success: #16a34a;
+      --warning: #ca8a04;
+      --danger: #dc2626;
+      --neutral: #475569;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.5;
+      margin: 0;
+      padding: 30px;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .header {
+      background: var(--card-bg);
+      padding: 24px 32px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .badge {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-PASS { background-color: #dcfce7; color: var(--success); }
+    .badge-WARNING { background-color: #fef9c3; color: var(--warning); }
+    .badge-REGRESSION { background-color: #fee2e2; color: var(--danger); }
+    .badge-INCONCLUSIVE { background-color: #f1f5f9; color: var(--neutral); }
+
+    .card {
+      background: var(--card-bg);
+      padding: 24px 32px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 1.25rem;
+      color: var(--text-main);
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .stat-box {
+      background: var(--bg);
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .stat-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .stat-val {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-top: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.95rem;
+    }
+    th {
+      background-color: var(--bg);
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+    }
+    .chart-container {
+      text-align: center;
+      margin-top: 16px;
+    }
+    .chart-img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .findings-list {
+      padding-left: 20px;
+    }
+    .findings-list li {
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1 style="margin: 0; font-size: 1.6rem;">{{ test_name }}</h1>
+        <p style="margin: 4px 0 0 0; color: var(--text-muted);">
+          Environment: <strong>{{ environment }}</strong> | Profile: <strong>{{ profile }}</strong> | Executed: {{ execution_date }}
+        </p>
+      </div>
+      <div>
+        <span class="badge badge-{{ verdict }}">{{ verdict }}</span>
+      </div>
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="card">
+      <h2>Executive Performance Summary</h2>
+      <div class="grid">
+        <div class="stat-box">
+          <div class="stat-label">p95 Latency</div>
+          <div class="stat-val">{{ latency.p95 }} ms</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Median (p50) Latency</div>
+          <div class="stat-val">{{ latency.med }} ms</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Throughput (RPS)</div>
+          <div class="stat-val">{{ throughput.requests_per_second }} req/s</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Total Requests</div>
+          <div class="stat-val">{{ throughput.total_requests }}</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">HTTP Failure Rate</div>
+          <div class="stat-val" style="color: {{ 'var(--danger)' if errors.failure_percentage > 1.0 else 'var(--success)' }};">
+            {{ errors.failure_percentage }}%
+          </div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Check Pass Rate</div>
+          <div class="stat-val" style="color: {{ 'var(--success)' if errors.check_pass_percentage > 99.0 else 'var(--warning)' }};">
+            {{ errors.check_pass_percentage }}%
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    {% if latency_chart_path %}
+    <div class="card">
+      <h2>Response Time Distribution</h2>
+      <div class="chart-container">
+        <img class="chart-img" src="{{ latency_chart_path }}" alt="Response Time Percentiles" />
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Regression Comparison -->
+    {% if comparisons %}
+    <div class="card">
+      <h2>Baseline Regression Analysis</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Baseline</th>
+            <th>Current Run</th>
+            <th>Absolute Delta</th>
+            <th>Percentage Change</th>
+            <th>Evaluation</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for name, comp in comparisons.items() %}
+          <tr>
+            <td><strong>{{ name }}</strong></td>
+            <td>{{ comp.baseline }}</td>
+            <td>{{ comp.current }}</td>
+            <td>{{ "+" if comp.absolute_diff > 0 else "" }}{{ comp.absolute_diff }}</td>
+            <td style="color: {{ 'var(--danger)' if comp.is_degraded else 'var(--success)' }}; font-weight: bold;">
+              {{ "+" if comp.percentage_diff > 0 else "" }}{{ comp.percentage_diff }}%
+            </td>
+            <td>
+              {% if comp.is_degraded and comp.percentage_diff | abs > 10 %}
+                <span style="color: var(--danger);">DEGRADED</span>
+              {% elif comp.is_degraded %}
+                <span style="color: var(--warning);">VARIANCE</span>
+              {% else %}
+                <span style="color: var(--success);">OPTIMAL</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% if comparison_chart_path %}
+      <div class="chart-container" style="margin-top: 20px;">
+        <img class="chart-img" src="{{ comparison_chart_path }}" alt="Baseline Comparison Chart" />
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Error Taxonomy & Checks -->
+    <div class="card">
+      <h2>Error Taxonomy & Functional Verification</h2>
+      <div class="grid">
+        <div class="stat-box">
+          <div class="stat-label">Transport Errors</div>
+          <div class="stat-val">{{ errors.taxonomy.transport_errors }}</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">4xx Client Errors</div>
+          <div class="stat-val">{{ errors.taxonomy.client_4xx }}</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">5xx Server Errors</div>
+          <div class="stat-val">{{ errors.taxonomy.server_5xx }}</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Validation Failures</div>
+          <div class="stat-val">{{ errors.taxonomy.validation_errors }}</div>
+        </div>
+      </div>
+
+      {% if errors.detailed_checks %}
+      <h3 style="font-size: 1rem; margin-top: 18px;">Executed Checks Breakdown</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Assertion / Check Name</th>
+            <th>Passes</th>
+            <th>Failures</th>
+            <th>Pass Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for chk in errors.detailed_checks %}
+          <tr>
+            <td>{{ chk.name }}</td>
+            <td style="color: var(--success);">{{ chk.passes }}</td>
+            <td style="color: {{ 'var(--danger)' if chk.fails > 0 else 'var(--text-muted)' }};">{{ chk.fails }}</td>
+            <td>{{ (chk.pass_rate * 100) | round(1) }}%</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+    </div>
+
+    <!-- Findings & Recommendations -->
+    <div class="card">
+      <h2>Engineering Interpretation & Recommendations</h2>
+      <ul class="findings-list">
+        {% for finding in findings %}
+        <li>{{ finding }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

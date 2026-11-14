@@ -1,0 +1,41 @@
+{
+  "profiles": {
+    "smoke": {
+      "http_req_failed": ["rate==0"],
+      "http_req_duration": ["p(95)<250", "p(99)<500"],
+      "checks": ["rate>0.99"]
+    },
+    "load": {
+      "http_req_failed": ["rate<0.01"],
+      "http_req_duration": ["p(95)<500", "p(99)<1000", "avg<200"],
+      "recommendation_duration": ["p(95)<800"],
+      "checks": ["rate>0.95"]
+    },
+    "stress": {
+      "http_req_failed": ["rate<0.15"],
+      "http_req_duration": ["p(95)<3000"],
+      "checks": ["rate>0.85"]
+    },
+    "spike": {
+      "http_req_failed": ["rate<0.05"],
+      "http_req_duration": ["p(95)<1500", "p(99)<3000"],
+      "checks": ["rate>0.90"]
+    },
+    "soak": {
+      "http_req_failed": ["rate<0.02"],
+      "http_req_duration": ["p(95)<600", "p(99)<1200"],
+      "checks": ["rate>0.95"]
+    },
+    "regression": {
+      "http_req_failed": ["rate<0.01"],
+      "http_req_duration": ["p(95)<500", "p(99)<1000"],
+      "checks": ["rate>0.98"]
+    }
+  },
+  "regressionTolerance": {
+    "maxLatencyDegradationPercent": 15.0,
+    "maxThroughputDegradationPercent": 10.0,
+    "maxErrorRateIncreaseAbsolute": 0.01,
+    "minAbsoluteLatencyDifferenceMs": 30.0
+  }
+}

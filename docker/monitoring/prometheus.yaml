@@ -1,0 +1,21 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+  scrape_native_histograms: true
+
+storage:
+  tsdb:
+    out_of_order_time_window: 10m
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: "quickpizza"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["quickpizza:3333"]
+        labels:
+          service: "quickpizza"
+          environment: "local"

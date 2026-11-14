@@ -1,0 +1,105 @@
+name: "Manual Performance Workload Execution"
+
+on:
+  workflow_dispatch:
+    inputs:
+      workload:
+        description: "Workload scenario profile"
+        required: true
+        default: "load"
+        type: choice
+        options:
+          - "load"
+          - "stress"
+          - "spike"
+          - "soak"
+      target_env:
+        description: "Target environment URL (safety guard: localhost only for heavy tests)"
+        required: true
+        default: "http://localhost:3333"
+        type: string
+      max_duration:
+        description: "Max execution duration safeguard (e.g., 2m, 5m, 10m - max 15m)"
+        required: false
+        default: "5m"
+        type: string
+
+concurrency:
+  group: performance-execution
+  cancel-in-progress: false
+
+jobs:
+  manual-load-test:
+    name: "Execute ${{ github.event.inputs.workload }} Test"
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v4
+
+      - name: "Set up Python 3.9"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: "Install Python Dependencies"
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: "Install k6"
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install -y k6
+
+      - name: "Safety Validation"
+        run: |
+          TARGET="${{ github.event.inputs.target_env }}"
+          if [[ "$TARGET" != *"localhost"* && "$TARGET" != *"127.0.0.1"* ]]; then
+            echo "::error::Safety violation: Heavy workload execution against non-localhost target ($TARGET) is prohibited."
+            exit 1
+          fi
+
+      - name: "Bootstrap QuickPizza Docker Stack"
+        run: |
+          ./scripts/setup.sh
+
+      - name: "Execute Selected Workload (${{ github.event.inputs.workload }})"
+        run: |
+          mkdir -p results/raw
+          ./scripts/run-${{ github.event.inputs.workload }}.sh
+
+      - name: "Generate Performance Report & Visualizations"
+        if: always()
+        run: |
+          SUMMARY_FILE="results/raw/${{ github.event.inputs.workload }}-summary.json"
+          if [ -f "$SUMMARY_FILE" ]; then
+            python -m python.cli report \
+              --input "$SUMMARY_FILE" \
+              --baseline baselines/approved-baseline.json \
+              --html "results/reports/${{ github.event.inputs.workload }}_report.html" \
+              --json "results/processed/${{ github.event.inputs.workload }}_metrics.json" \
+              --csv "results/reports/${{ github.event.inputs.workload }}_summary.csv"
+          else
+            echo "Summary file not found: $SUMMARY_FILE"
+          fi
+
+      - name: "Upload Test Artifacts"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manual-${{ github.event.inputs.workload }}-artifacts
+          path: |
+            results/reports/
+            results/processed/
+            results/charts/
+            results/raw/
+
+      - name: "Teardown Environment"
+        if: always()
+        run: |
+          ./scripts/cleanup.sh --all

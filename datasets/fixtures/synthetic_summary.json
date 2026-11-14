@@ -1,0 +1,170 @@
+{
+  "_comment": "SYNTHETIC TEST FIXTURE: This file is used strictly for Python unit testing.",
+  "root_group": {
+    "name": "",
+    "path": "",
+    "id": "d41d8cd98f00b204e9800998ecf8427e",
+    "groups": [],
+    "checks": [
+      {
+        "name": "status is 200",
+        "path": "::status is 200",
+        "id": "548dcc3a69a03b5f922718a7a14e9f75",
+        "passes": 100,
+        "fails": 0
+      },
+      {
+        "name": "recommendation has pizza",
+        "path": "::recommendation has pizza",
+        "id": "3b2e592751f84cd803d5204481079d86",
+        "passes": 98,
+        "fails": 2
+      }
+    ]
+  },
+  "options": {
+    "summaryTrendStats": ["avg", "min", "med", "max", "p(90)", "p(95)", "p(99)"],
+    "summaryTimeUnit": ""
+  },
+  "state": {
+    "isStdOutTTY": true,
+    "isStdErrTTY": true,
+    "testRunDurationMs": 10000.0
+  },
+  "metrics": {
+    "checks": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 0.99,
+        "passes": 198,
+        "fails": 2
+      }
+    },
+    "http_reqs": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 100,
+        "rate": 10.0
+      }
+    },
+    "iterations": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 25,
+        "rate": 2.5
+      }
+    },
+    "http_req_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 45.2,
+        "min": 1.2,
+        "med": 24.5,
+        "max": 420.0,
+        "p(90)": 85.0,
+        "p(95)": 120.0,
+        "p(99)": 280.0
+      }
+    },
+    "http_req_failed": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 0.02,
+        "passes": 2,
+        "fails": 98
+      }
+    },
+    "recommendation_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 65.0,
+        "min": 20.0,
+        "med": 50.0,
+        "max": 310.0,
+        "p(90)": 95.0,
+        "p(95)": 140.0,
+        "p(99)": 250.0
+      }
+    },
+    "data_received": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 204800,
+        "rate": 20480.0
+      }
+    },
+    "data_sent": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 51200,
+        "rate": 5120.0
+      }
+    },
+    "vus": {
+      "type": "gauge",
+      "contains": "default",
+      "values": {
+        "value": 5,
+        "min": 1,
+        "max": 5
+      }
+    },
+    "vus_max": {
+      "type": "gauge",
+      "contains": "default",
+      "values": {
+        "value": 5,
+        "min": 5,
+        "max": 5
+      }
+    },
+    "errors_transport": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 0,
+        "rate": 0.0
+      }
+    },
+    "errors_client_4xx": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 1,
+        "rate": 0.1
+      }
+    },
+    "errors_server_5xx": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 1,
+        "rate": 0.1
+      }
+    },
+    "errors_validation": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 2,
+        "rate": 0.2
+      }
+    },
+    "business_transaction_failures": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 2,
+        "rate": 0.2
+      }
+    }
+  }
+}

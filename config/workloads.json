@@ -1,0 +1,117 @@
+{
+  "profiles": {
+    "smoke": {
+      "description": "Basic environmental sanity and contract check",
+      "executor": "constant-vus",
+      "vus": 2,
+      "duration": "30s",
+      "thinkTime": {
+        "minSeconds": 0.5,
+        "maxSeconds": 1.0
+      },
+      "journeyDistribution": {
+        "recommendation": 0.60,
+        "catalog": 0.20,
+        "ratings": 0.10,
+        "health": 0.10
+      }
+    },
+    "load": {
+      "description": "Expected operational load with gradual ramp-up and steady state",
+      "executor": "ramping-vus",
+      "stages": [
+        { "duration": "30s", "target": 10 },
+        { "duration": "1m", "target": 25 },
+        { "duration": "2m", "target": 25 },
+        { "duration": "30s", "target": 0 }
+      ],
+      "thinkTime": {
+        "minSeconds": 0.5,
+        "maxSeconds": 2.0
+      },
+      "journeyDistribution": {
+        "recommendation": 0.60,
+        "catalog": 0.20,
+        "ratings": 0.10,
+        "health": 0.10
+      }
+    },
+    "stress": {
+      "description": "Progressive load increments to locate saturation and failure boundary",
+      "executor": "ramping-vus",
+      "stages": [
+        { "duration": "20s", "target": 10 },
+        { "duration": "30s", "target": 30 },
+        { "duration": "40s", "target": 60 },
+        { "duration": "40s", "target": 90 },
+        { "duration": "20s", "target": 0 }
+      ],
+      "thinkTime": {
+        "minSeconds": 0.2,
+        "maxSeconds": 1.0
+      },
+      "journeyDistribution": {
+        "recommendation": 0.60,
+        "catalog": 0.20,
+        "ratings": 0.10,
+        "health": 0.10
+      }
+    },
+    "spike": {
+      "description": "Sudden traffic surge test to evaluate recovery dynamics",
+      "executor": "ramping-vus",
+      "stages": [
+        { "duration": "20s", "target": 5 },
+        { "duration": "10s", "target": 50 },
+        { "duration": "45s", "target": 50 },
+        { "duration": "10s", "target": 5 },
+        { "duration": "25s", "target": 5 }
+      ],
+      "thinkTime": {
+        "minSeconds": 0.3,
+        "maxSeconds": 1.2
+      },
+      "journeyDistribution": {
+        "recommendation": 0.60,
+        "catalog": 0.20,
+        "ratings": 0.10,
+        "health": 0.10
+      }
+    },
+    "soak": {
+      "description": "Sustained endurance test to uncover resource and connection leaks",
+      "executor": "constant-vus",
+      "vus": 15,
+      "duration": "15m",
+      "thinkTime": {
+        "minSeconds": 1.0,
+        "maxSeconds": 2.5
+      },
+      "journeyDistribution": {
+        "recommendation": 0.60,
+        "catalog": 0.20,
+        "ratings": 0.10,
+        "health": 0.10
+      }
+    },
+    "regression": {
+      "description": "Deterministic workload for baseline regression gating",
+      "executor": "ramping-vus",
+      "stages": [
+        { "duration": "15s", "target": 15 },
+        { "duration": "90s", "target": 15 },
+        { "duration": "15s", "target": 0 }
+      ],
+      "thinkTime": {
+        "minSeconds": 0.5,
+        "maxSeconds": 1.5
+      },
+      "journeyDistribution": {
+        "recommendation": 0.60,
+        "catalog": 0.20,
+        "ratings": 0.10,
+        "health": 0.10
+      }
+    }
+  }
+}

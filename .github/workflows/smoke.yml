@@ -1,0 +1,71 @@
+name: "Automated Smoke Performance Test"
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+concurrency:
+  group: smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: "Deploy & Execute Smoke Test"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v4
+
+      - name: "Set up Python 3.9"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: "Install Python Dependencies"
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: "Install k6"
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install -y k6
+
+      - name: "Bootstrap QuickPizza Docker Stack"
+        run: |
+          ./scripts/setup.sh
+
+      - name: "Execute Smoke Test"
+        run: |
+          ./scripts/run-smoke.sh
+
+      - name: "Generate HTML & JSON Performance Report"
+        if: always()
+        run: |
+          python -m python.cli report \
+            --input results/raw/smoke-summary.json \
+            --html results/reports/smoke_report.html \
+            --json results/processed/smoke_metrics.json \
+            --csv results/reports/smoke_summary.csv
+
+      - name: "Upload Performance Reports & Artifacts"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quickpizza-smoke-reports
+          path: |
+            results/reports/
+            results/processed/
+            results/charts/
+            results/raw/
+
+      - name: "Teardown Environment"
+        if: always()
+        run: |
+          ./scripts/cleanup.sh --all

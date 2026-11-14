@@ -1,0 +1,91 @@
+name: "Performance Regression Gating Pipeline"
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: "Workload profile for regression comparison"
+        required: true
+        default: "regression"
+        type: choice
+        options:
+          - "regression"
+          - "load"
+
+concurrency:
+  group: regression-gate
+  cancel-in-progress: false
+
+jobs:
+  regression-gate:
+    name: "Regression Test & Baseline Gating"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v4
+
+      - name: "Set up Python 3.9"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: "Install Python Dependencies"
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: "Install k6"
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install -y k6
+
+      - name: "Bootstrap QuickPizza Docker Stack"
+        run: |
+          ./scripts/setup.sh
+
+      - name: "Execute Regression Workload"
+        run: |
+          mkdir -p results/raw
+          k6 run \
+            -e WORKLOAD_PROFILE=${{ github.event.inputs.profile || 'regression' }} \
+            -e SUMMARY_OUTPUT=results/raw/current-run-summary.json \
+            k6/runner/run-test.js
+
+      - name: "Compare against Approved Baseline"
+        id: compare
+        run: |
+          python -m python.cli compare \
+            --current results/raw/current-run-summary.json \
+            --baseline baselines/approved-baseline.json \
+            --output results/processed/comparison_result.json
+
+      - name: "Generate Executive Regression HTML Report"
+        if: always()
+        run: |
+          python -m python.cli report \
+            --input results/raw/current-run-summary.json \
+            --baseline baselines/approved-baseline.json \
+            --html results/reports/regression_gate_report.html \
+            --json results/processed/current_run_metrics.json \
+            --csv results/reports/current_run_summary.csv
+
+      - name: "Upload Regression Artifacts"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-gate-artifacts
+          path: |
+            results/reports/
+            results/processed/
+            results/charts/
+            results/raw/
+
+      - name: "Teardown Environment"
+        if: always()
+        run: |
+          ./scripts/cleanup.sh --all

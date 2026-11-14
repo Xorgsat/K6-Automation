@@ -1,0 +1,232 @@
+{
+  "application_version": "quickpizza-0.15.30",
+  "framework_version": "1.0.0",
+  "created_at_utc": "2026-11-14T12:10:26.673340Z",
+  "workload_profile": "regression",
+  "notes": "Official baseline benchmark (2m, 15 VUs, 3659 requests)",
+  "host": {
+    "os": "Darwin",
+    "release": "25.6.0",
+    "machine": "arm64",
+    "python_version": "3.9.6"
+  },
+  "metrics": {
+    "summary_path": "results/raw/baseline-run1-summary.json",
+    "latency": {
+      "min": 0.217,
+      "med": 1.534,
+      "p90": 60.338200000000015,
+      "p95": 95.52779999999996,
+      "p99": 0.0,
+      "max": 622.524,
+      "avg": 15.978135282864152
+    },
+    "throughput": {
+      "total_requests": 3659,
+      "requests_per_second": 30.37,
+      "total_iterations": 915,
+      "iterations_per_second": 7.59,
+      "data_received_bytes": 6287204,
+      "data_received_kb": 6139.85,
+      "data_sent_bytes": 891428,
+      "data_sent_kb": 870.54
+    },
+    "errors": {
+      "failed_requests": 0,
+      "successful_requests": 3659,
+      "total_requests": 3659,
+      "failure_rate": 0.0,
+      "failure_percentage": 0.0,
+      "total_checks": 6839,
+      "check_passes": 6839,
+      "check_fails": 0,
+      "check_pass_rate": 1.0,
+      "check_pass_percentage": 100.0,
+      "taxonomy": {
+        "transport_errors": 0,
+        "client_4xx": 0,
+        "server_5xx": 0,
+        "validation_errors": 0,
+        "business_failures": 0
+      },
+      "detailed_checks": [
+        {
+          "name": "ingredients (tomato) status is 200",
+          "passes": 518,
+          "fails": 0,
+          "pass_rate": 1.0
+        },
+        {
+          "name": "ingredients (tomato) has list",
+          "passes": 518,
+          "fails": 0,
+          "pass_rate": 1.0
+        },
+        {
+          "name": "doughs status is 200",
+          "passes": 715,
+          "fails": 0,
+          "pass_rate": 1.0
+        },
+        {
+          "name": "doughs has list",
+          "passes": 715,
+          "fails": 0,
+          "pass_rate": 1.0
+        },
+        {
+          "name": "rating created status is 201",
+          "passes": 99,
+          "fails": 0,
+          "pass_rate": 1.0
+        },
+        {
+          "name": "rating created has id",
+          "passes": 99,
+          "fails": 0,
+          "pass_rate": 1.0
+        },
+        {
+          "name": "recommendation status is 200",
+          "passes": 518,
+          "fails": 0,
+          "pass_rate": 1.0
+        },
+        {
+          "name": "recommendation has pizza object",
+          "passes": 518,
+          "fails": 0,
+          "pass_rate": 1.0
+        },
+        {
+          "name": "recommendation has valid ingredients",
+          "passes": 518,
+          "fails": 0,
+          "pass_rate": 1.0
+        },
+        {
+          "name": "recommendation has calories",
+          "passes": 518,
+          "fails": 0,
+          "pass_rate": 1.0
+        },
+        {
+          "name": "get rating is 200",
+          "passes": 99,
+          "fails": 0,
+          "pass_rate": 1.0
+        },
+        {
+          "name": "update rating is 200",
+          "passes": 99,
+          "fails": 0,
+          "pass_rate": 1.0
+        },
+        {
+          "name": "delete rating is 204",
+          "passes": 99,
+          "fails": 0,
+          "pass_rate": 1.0
+        },
+        {
+          "name": "fetch saved pizza is 200",
+          "passes": 518,
+          "fails": 0,
+          "pass_rate": 1.0
+        },
+        {
+          "name": "tools status is 200",
+          "passes": 197,
+          "fails": 0,
+          "pass_rate": 1.0
+        },
+        {
+          "name": "tools has list",
+          "passes": 197,
+          "fails": 0,
+          "pass_rate": 1.0
+        },
+        {
+          "name": "liveness probe is 200",
+          "passes": 101,
+          "fails": 0,
+          "pass_rate": 1.0
+        },
+        {
+          "name": "readiness probe is 200",
+          "passes": 101,
+          "fails": 0,
+          "pass_rate": 1.0
+        },
+        {
+          "name": "ingredients (mozzarella) status is 200",
+          "passes": 197,
+          "fails": 0,
+          "pass_rate": 1.0
+        },
+        {
+          "name": "ingredients (mozzarella) has list",
+          "passes": 197,
+          "fails": 0,
+          "pass_rate": 1.0
+        },
+        {
+          "name": "quotes status is 200",
+          "passes": 197,
+          "fails": 0,
+          "pass_rate": 1.0
+        },
+        {
+          "name": "prometheus scrape is 200",
+          "passes": 101,
+          "fails": 0,
+          "pass_rate": 1.0
+        }
+      ]
+    },
+    "vus": {
+      "current_vus": 2,
+      "max_vus": 15
+    },
+    "custom_business_metrics": {
+      "recommendation_duration": {
+        "min": 8.0,
+        "med": 75.5,
+        "p90": 168.60000000000002,
+        "p95": 233.89999999999986,
+        "p99": 0.0,
+        "max": 623.0,
+        "avg": 90.04440154440154
+      },
+      "rating_operation_duration": {
+        "min": 2.0,
+        "med": 4.0,
+        "p90": 6.0,
+        "p95": 6.0,
+        "p99": 0.0,
+        "max": 8.0,
+        "avg": 4.373737373737374
+      },
+      "catalog_operation_duration": {
+        "min": 514.0,
+        "med": 1046.0,
+        "p90": 1430.8,
+        "p95": 1455.0,
+        "p99": 0.0,
+        "max": 1503.0,
+        "avg": 1039.5837563451776
+      }
+    },
+    "endpoints": {
+      "expected_response:true": {
+        "min": 0.217,
+        "med": 1.534,
+        "p90": 60.338200000000015,
+        "p95": 95.52779999999996,
+        "p99": 0.0,
+        "max": 622.524,
+        "avg": 15.978135282864152
+      }
+    }
+  }
+}

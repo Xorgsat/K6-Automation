@@ -1,0 +1,24 @@
+{
+  "system": {
+    "frameworkName": "Performance Engineering Framework — QuickPizza",
+    "version": "1.0.0",
+    "defaultEnvironment": "local",
+    "defaultWorkload": "smoke"
+  },
+  "safety": {
+    "allowedHosts": [
+      "localhost",
+      "127.0.0.1",
+      "host.docker.internal",
+      "quickpizza"
+    ],
+    "requireExplicitExternalConsent": true,
+    "globalMaxVUs": 150,
+    "globalMaxDurationSeconds": 3600
+  },
+  "reporting": {
+    "outputDir": "results",
+    "formats": ["html", "json", "csv", "png"],
+    "generateCharts": true
+  }
+}

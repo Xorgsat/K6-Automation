@@ -1,0 +1,34 @@
+# Environment and Secrets
+.env
+.env.local
+*.secret
+
+# Python Virtual Environment
+.venv/
+venv/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Test Execution Output (preserve directory placeholders via .gitkeep)
+results/raw/*.json
+results/processed/*.json
+results/reports/*.html
+results/charts/*.png
+results/charts/*.svg
+!results/**/.gitkeep
+!baselines/**
+!datasets/**
+
+# Logs
+*.log
+logs.txt
+
+# Node / JS
+node_modules/

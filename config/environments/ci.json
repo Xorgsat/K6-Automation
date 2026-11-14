@@ -1,0 +1,16 @@
+{
+  "name": "ci",
+  "baseUrl": "http://localhost:3333",
+  "prometheusUrl": "http://localhost:9090",
+  "prometheusRemoteWriteUrl": "http://localhost:9090/api/v1/write",
+  "grafanaUrl": "http://localhost:3000",
+  "requestTimeout": "5s",
+  "allowExternal": false,
+  "defaultHeaders": {
+    "User-Agent": "k6-performance-engineering-framework-ci/1.0"
+  },
+  "limits": {
+    "maxVUs": 50,
+    "maxDuration": "5m"
+  }
+}
